@@ -1,4 +1,5 @@
-(ns leiningen.guzheng)
+(ns leiningen.guzheng
+  (:use [clojure.pprint]))
 
 (defn eval-in-project
   "Support eval-in-project in both Leiningen 1.x and 2.x."
@@ -18,12 +19,14 @@
   "I don't do a lot."
   [project & args]
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng "1.0.0"]))]
+                  (update-in [:dependencies] conj ['guzheng/guzheng "1.0.0"]))]
+    (pprint project)
     (eval-in-project project
                      `(do
                         (println "lol")
-                        (require 'guzheng.core)
-                        (clojure.pprint/pprint "hi"));@guzheng.core/main-trace-atom)
-                     ;`(require 'guzheng.core)
-                     `(require 'clojure.pprint)
+                        (clojure.pprint/pprint "hi")
+                        ;(require 'guzheng.core)
+                        );@guzheng.core/main-trace-atom)
+                     `(require 'guzheng.core)
+                     ;`(require 'clojure.pprint)
                      )))
