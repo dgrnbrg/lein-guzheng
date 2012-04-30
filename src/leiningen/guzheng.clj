@@ -16,14 +16,12 @@
   "Takes the form to be wrapped with the
   guzheng data collector and result displayer."
   [form nses]
-  (let [x  `(do
+  `(do
      (guzheng.core/instrument-nses
        guzheng.core/trace-if-branches
        (vector ~@(map str nses))) 
      ~form
-     (guzheng.core/report-missing-coverage))]
-    ;(pprint ["form is " x])
-    x))
+     (guzheng.core/report-missing-coverage)))
 
 (defn lein-probe
   "Returns eip and whether this is lein 1 or lein 2.
