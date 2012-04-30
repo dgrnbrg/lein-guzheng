@@ -45,15 +45,10 @@
         (catch java.io.FileNotFoundException _))) )
 
 (defn instrument-init
-  "Takes an init form and adds guzheng to it"
+  "Takes an init form and adds guzheng to it.
+  TODO: cannot compose with other inits."
   [form nses]
-  (println "instrumenting init")
-  `(do ~form (require ~'guzheng.core))
-  (let [x  `(apply require 'guzheng.core '~nses)]
-    (require 'clojure.pprint)
-    (clojure.pprint/pprint ["new-init is " x])
-    (flush)
-    x))
+  `(apply require 'guzheng.core '~nses))
 
 (def ^:dynamic *instrumented-nses*)
 
@@ -77,7 +72,6 @@
 (defn guzheng
   "I am the eggman."
   [project & args]
-  (println "guzheng starts now")
   (let [project (-> project
                   (update-in [:dependencies] conj ['guzheng/guzheng "1.1.0"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
