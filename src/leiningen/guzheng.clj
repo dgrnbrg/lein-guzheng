@@ -1,6 +1,7 @@
 (ns leiningen.guzheng
   (:use bultitude.core)
   (:use clojure.pprint)
+  (:require leiningen.test)
   (:use robert.hooke))
 
 (defn split-ns-subtask
@@ -89,7 +90,9 @@
       (add-hook (ns-resolve 'leiningen.compile 'eval-in-project)
                 #'instrument-eip-1))
     (require subtask-ns-sym)
-    (binding [*instrumented-nses* nses]
+    (binding [*instrumented-nses* nses
+              leiningen.core/*interactive?* true
+              leiningen.test/*exit-after-tests* false]
       (apply (ns-resolve subtask-ns-sym
                          (symbol subtask))
              project
