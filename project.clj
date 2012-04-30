@@ -5,5 +5,5 @@
   :eval-in-leiningen true
   :dependencies [[guzheng/guzheng "1.0.0"]
                  [bultitude "0.1.5"]
-                 [robert.hooke "1.1.3"]]
+                 [robert/hooke "1.1.3"]]
   )
