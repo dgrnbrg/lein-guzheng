@@ -1,22 +1,22 @@
 # lein-guzheng
 
-A Leiningen plugin to do many wonderful things.
+A Leiningen plugin to run another leiningen plugin with guzheng.
+
+guzheng is an instrumentation library, and this task will do branch
+coverage analysis.
 
 ## Usage
 
-FIXME: Use this for user-level plugins:
-
-Put `[lein-guzheng "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your
+Put `[lein-guzheng "0.2.0"]` into the `:plugins` vector of your
 `:user` profile, or if you are on Leiningen 1.x do `lein plugin install
-lein-guzheng 0.1.0-SNAPSHOT`.
+lein-guzheng 0.2.0`.
 
-FIXME: Use this for project-level plugins:
+    $ lein guzheng my.first.ns my.second.ns -- test
 
-Put `[lein-guzheng "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your project.clj.
+Runs the test task and does branch coverage analysis on my.first.ns and my.second.ns.
 
-FIXME: and add an example usage that actually makes sense:
-
-    $ lein guzheng
+Use this to find dead code (by using the run task), untested code (by using
+test or midge), or to test coverage of other lein tasks.
 
 ## License
 
