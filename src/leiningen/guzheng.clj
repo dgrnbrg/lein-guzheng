@@ -16,13 +16,7 @@
   "Takes the form to be wrapped with the
   guzheng data collector and result displayer."
   [form nses]
-  (println "instrumenting form")
   (let [x  `(do
-     (println "Hello from inside the wall")
-     (flush)
-     ;(require ~'guzheng.core)
-     (println "hi i got some guzheng")
-     (flush)
      (guzheng.core/instrument-nses
        guzheng.core/trace-if-branches
        (vector ~@(map str nses))) 
