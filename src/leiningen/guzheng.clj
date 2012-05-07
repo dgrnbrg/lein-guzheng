@@ -62,10 +62,12 @@
      (instrument-init init *instrumented-nses*)))
 
 (defn guzheng
-  "I am the eggman."
+  "Takes a list of namespaces followed by -- and
+  another leiningen task and executes that task
+  with the given namespaces instrumented."
   [project & args]
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng/guzheng "1.1.0"]))
+                  (update-in [:dependencies] conj ['guzheng/guzheng "1.1.3"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
         [_ two?] (lein-probe)
         subtask-ns-sym (symbol (str "leiningen." subtask))]
