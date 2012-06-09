@@ -1,6 +1,7 @@
 (ns leiningen.guzheng
   (:use bultitude.core)
   (:use clojure.pprint)
+  (:use [leiningen.core :only [apply-task]])
   (:require leiningen.test)
   (:use robert.hooke))
 
@@ -69,19 +70,17 @@
   (let [project (-> project
                   (update-in [:dependencies] conj ['guzheng/guzheng "1.1.3"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
-        [_ two?] (lein-probe)
-        subtask-ns-sym (symbol (str "leiningen." subtask))]
+        [_ two?] (lein-probe)]
     ;Instrument the correct eval-in-project fn
     (if two?
       (add-hook (ns-resolve 'leiningen.core.eval 'eval-in-project)
                 #'instrument-eip-2)
       (add-hook (ns-resolve 'leiningen.compile 'eval-in-project)
                 #'instrument-eip-1))
-    (require subtask-ns-sym)
     (binding [*instrumented-nses* nses
               leiningen.core/*interactive?* true
               leiningen.test/*exit-after-tests* false]
-      (apply (ns-resolve subtask-ns-sym
-                         (symbol subtask))
-             project
-             sub-args))))
+      (apply-task subtask
+                  project
+                  sub-args
+                  #'leiningen.core/task-not-found))))
