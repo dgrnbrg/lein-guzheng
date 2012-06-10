@@ -1,11 +1,9 @@
 language: clojure
 
 before_install:
-  - wget -o lein2 https://raw.github.com/technomancy/leiningen/preview/bin/lein
-  - chmod +x lein2
   - lein2 deps
 
-script: export PATH=$PATH:$PWD lein install, test
+script: lein install, test
 
 branches:
   only:
