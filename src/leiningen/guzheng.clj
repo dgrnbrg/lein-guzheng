@@ -1,7 +1,6 @@
 (ns leiningen.guzheng
   (:use bultitude.core)
   (:use clojure.pprint)
-  (:use [leiningen.core :only [apply-task]])
   (:require leiningen.test)
   (:use robert.hooke))
 
@@ -15,14 +14,18 @@
 
 (defn instrument-form
   "Takes the form to be wrapped with the
-  guzheng data collector and result displayer."
+  guzheng data collector and result displayer.
+  This uses a shutdown hook in the JVM in order to be
+  portable-ish between lein1 and lein2. This may
+  cause problems if there is tons of missing coverage."
   [form nses]
   `(do
      (guzheng.core/instrument-nses
        guzheng.core/trace-if-branches
        (vector ~@(map str nses))) 
-     ~form
-     (guzheng.core/report-missing-coverage)))
+     (-> (java.lang.Runtime/getRuntime)
+       (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
+     ~form))
 
 (defn lein-probe
   "Returns eip and whether this is lein 1 or lein 2.
@@ -70,15 +73,17 @@
   (let [project (-> project
                   (update-in [:dependencies] conj ['guzheng/guzheng "1.1.3"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
-        [eip two?] (lein-probe)]
+        [eip two?] (lein-probe)
+        apply-task (if two?
+                     (resolve 'leiningen.core.main/apply-task) 
+                     (resolve 'leiningen.core/apply-task))]
     ;Instrument the correct eval-in-project fn
     (add-hook eip (if two?
                     #'instrument-eip-2
                     #'instrument-eip-1))
     (binding [*instrumented-nses* nses
-              leiningen.core/*interactive?* true
               leiningen.test/*exit-after-tests* false]
-      (apply-task subtask
-                  project
-                  sub-args
-                  #'leiningen.core/task-not-found))))
+      (apply apply-task subtask project sub-args
+             (if two?
+               [] ;lein1 has a 4 arg form, lein2 is 3 arg form
+               [(resolve 'leiningen.core/task-not-found)])))))
