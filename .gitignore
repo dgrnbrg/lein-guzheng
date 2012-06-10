@@ -9,3 +9,5 @@ pom.xml
 .lein-failures
 .lein-plugins
 src/leiningen/.guzheng.clj.swp
+
+test-project-lein2/target/stale/dependencies
