@@ -5,7 +5,7 @@ before_install:
   - chmod +x lein2
   - lein2 deps
 
-script: lein install, test
+script: export PATH=$PATH:$PWD lein install, test
 
 branches:
   only:
