@@ -1,5 +1,9 @@
 (ns foo.core)
 
+(defn hello-world
+  []
+  "hello world")
+
 (defn goodbye
   []
   (if true
