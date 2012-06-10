@@ -1,0 +1,10 @@
+language: clojure
+
+before_install:
+  - lein2 bootstrap
+
+script: lein install, test
+
+branches:
+  only:
+    - master
