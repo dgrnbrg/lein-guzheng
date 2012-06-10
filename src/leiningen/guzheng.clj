@@ -70,13 +70,11 @@
   (let [project (-> project
                   (update-in [:dependencies] conj ['guzheng/guzheng "1.1.3"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
-        [_ two?] (lein-probe)]
+        [eip two?] (lein-probe)]
     ;Instrument the correct eval-in-project fn
-    (if two?
-      (add-hook (ns-resolve 'leiningen.core.eval 'eval-in-project)
-                #'instrument-eip-2)
-      (add-hook (ns-resolve 'leiningen.compile 'eval-in-project)
-                #'instrument-eip-1))
+    (add-hook eip (if two?
+                    #'instrument-eip-2
+                    #'instrument-eip-1))
     (binding [*instrumented-nses* nses
               leiningen.core/*interactive?* true
               leiningen.test/*exit-after-tests* false]
