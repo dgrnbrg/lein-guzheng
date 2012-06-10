@@ -5,6 +5,8 @@ A Leiningen plugin to run another leiningen plugin with guzheng.
 guzheng is an instrumentation library, and this task will do branch
 coverage analysis.
 
+[![Build Status](https://secure.travis-ci.org/dgrnbrg/lein-guzheng.png?branch=master)](http://travis-ci.org/dgrnbrg/lein-guzheng)
+
 ## Usage
 
 Put `[lein-guzheng "0.3.0"]` into the `:plugins` vector of your
