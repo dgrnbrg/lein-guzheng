@@ -7,7 +7,7 @@
 
 (deftest test-lein1
   (let [{:keys [err out exit]}
-        (sh "lein" "deps," "version" :dir "test-project-lein1")]
+        (sh "lein" "clean," "deps," "version" :dir "test-project-lein1")]
     (println out)
     (is (re-find #"Leiningen 1\." out))
     (is (= 0 exit))) 
@@ -19,7 +19,7 @@
 
 (deftest test-lein2
   (let [{:keys [err out exit]}
-        (sh "lein2" "deps," "version" :dir "test-project-lein2")]
+        (sh "lein2" "clean," "deps," "version" :dir "test-project-lein2")]
     (println out)
     (is (re-find #"Leiningen 2\." out))
     (is (= 0 exit))) 
