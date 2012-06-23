@@ -18,13 +18,25 @@
   This uses a shutdown hook in the JVM in order to be
   portable-ish between lein1 and lein2. This may
   cause problems if there is tons of missing coverage."
-  [form nses]
+  [form nses lein2?]
   `(do
      (guzheng.core/instrument-nses
        guzheng.core/trace-if-branches
        (vector ~@(map str nses))) 
      (-> (java.lang.Runtime/getRuntime)
        (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
+     (defn safe-alter#
+       [f# ref# fun# & args#]
+       (if (not= ref# @#'clojure.core/*loaded-libs*)
+         (apply f# ref# fun# args#)
+         ;TODO: we should actually reload the listed namespaces here, rather than cutting them out entirely
+         ;alternatively, we could try to hook clojure.core/require
+         @ref#))
+     ~(when lein2?
+        '(require 'robert.hooke))
+     (~(if lein2?
+         'robert.hooke/add-hook
+         'leiningen.util.injected/add-hook) #'alter #'safe-alter#)
      ~form))
 
 (defn lein-probe
@@ -44,7 +56,9 @@
   "Takes an init form and adds guzheng to it.
   TODO: cannot compose with other inits."
   [form nses]
-  `(apply require 'guzheng.core '~nses))
+  `(do
+     ~form
+     (apply require 'guzheng.core '~nses)))
 
 (def ^:dynamic *instrumented-nses*)
 
@@ -53,7 +67,7 @@
   [f project form x y init]
   (if-not (or x y)
     (f project
-       (instrument-form form *instrumented-nses*)
+       (instrument-form form *instrumented-nses* false)
        nil nil
        (instrument-init init *instrumented-nses*))
     (f project form x y init)))
@@ -62,7 +76,7 @@
   "Calls eval in project w/ instrumentation."
   [f project form init]
   (f project
-    (instrument-form form *instrumented-nses*)
+     (instrument-form form *instrumented-nses* true)
      (instrument-init init *instrumented-nses*)))
 
 (defn guzheng
@@ -76,7 +90,13 @@
         [eip two?] (lein-probe)
         apply-task (if two?
                      (resolve 'leiningen.core.main/apply-task) 
-                     (resolve 'leiningen.core/apply-task))]
+                     (resolve 'leiningen.core/apply-task))
+        ;must add a dependency on robert.hooke for lein2
+        ;TODO: use injected hook in lein2 as well
+        project (-> project
+                  (update-in [:dependencies] conj ['robert/hooke "1.1.3"]))
+
+        ]
     ;Instrument the correct eval-in-project fn
     (add-hook eip (if two?
                     #'instrument-eip-2

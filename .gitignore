@@ -11,3 +11,5 @@ pom.xml
 src/leiningen/.guzheng.clj.swp
 
 test-project-lein2/target/stale/dependencies
+
+test-project-lein2-midje/target/stale/dependencies

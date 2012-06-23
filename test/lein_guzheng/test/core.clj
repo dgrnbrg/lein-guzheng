@@ -25,7 +25,20 @@
     (is (= 0 exit))) 
   (let [{:keys [err out exit ] :as lein2-output}
         (sh "lein2" "guzheng" "foo.core" "--" "test" :dir "test-project-lein2")]
-    (pprint ["lein2 output:" lein2-output])
+    (println lein2-output)
+    (flush)
+    (is (= 0 exit))
+    (is (.endsWith out expected-output))))
+
+(deftest midje-lein2
+  (let [{:keys [err out exit]}
+        (sh "lein2" "clean," "deps," "version" :dir "test-project-lein2-midje")]
+    (println out)
+    (is (re-find #"Leiningen 2\." out))
+    (is (= 0 exit))) 
+  (let [{:keys [err out exit ] :as lein2-midje-output}
+        (sh "lein2" "guzheng" "foo.core" "--" "midje" :dir "test-project-lein2-midje")]
+    (println lein2-midje-output)
     (flush)
     (is (= 0 exit))
     (is (.endsWith out expected-output))))
