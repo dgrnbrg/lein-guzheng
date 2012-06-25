@@ -23,9 +23,6 @@
         nses (map str nses)
         form
     `(do
-       (guzheng.core/instrument-nses
-         guzheng.core/trace-if-branches
-         (vector ~@nses))
        (-> (java.lang.Runtime/getRuntime)
          (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
        (defn require-instrumented#
@@ -65,7 +62,7 @@
   [form nses]
   `(do
      ~form
-     (apply require 'guzheng.core '~nses)))
+     (require 'guzheng.core)))
 
 (def ^:dynamic *instrumented-nses*)
 
