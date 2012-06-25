@@ -19,25 +19,33 @@
   portable-ish between lein1 and lein2. This may
   cause problems if there is tons of missing coverage."
   [form nses lein2?]
-  `(do
-     (guzheng.core/instrument-nses
-       guzheng.core/trace-if-branches
-       (vector ~@(map str nses))) 
-     (-> (java.lang.Runtime/getRuntime)
-       (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
-     (defn safe-alter#
-       [f# ref# fun# & args#]
-       (if (not= ref# @#'clojure.core/*loaded-libs*)
-         (apply f# ref# fun# args#)
-         ;TODO: we should actually reload the listed namespaces here, rather than cutting them out entirely
-         ;alternatively, we could try to hook clojure.core/require
-         @ref#))
-     ~(when lein2?
-        '(require 'robert.hooke))
-     (~(if lein2?
-         'robert.hooke/add-hook
-         'leiningen.util.injected/add-hook) #'alter #'safe-alter#)
-     ~form))
+  (let [libspecs-sym (gensym "libspecs")
+        nses (map str nses)
+        form
+    `(do
+       (guzheng.core/instrument-nses
+         guzheng.core/trace-if-branches
+         (vector ~@nses))
+       (-> (java.lang.Runtime/getRuntime)
+         (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
+       (defn require-instrumented#
+         [f# & ~libspecs-sym]
+         (let [loaded-ref# @#'clojure.core/*loaded-libs*
+               loaded# (map str @loaded-ref#)]
+           (doseq [ns# (vector ~@nses)]
+             (when-not (some #{ns#} loaded#)
+               (dosync (alter loaded-ref# conj (symbol ns#)))
+               (guzheng.core/instrument-nses
+                 guzheng.core/trace-if-branches
+                 (vector ns#)))))
+         (apply f# ~libspecs-sym))
+       ~(when lein2?
+          '(require 'robert.hooke))
+       (~(if lein2?
+           'robert.hooke/add-hook
+           'leiningen.util.injected/add-hook) #'require #'require-instrumented#)
+       ~form)]
+    form))
 
 (defn lein-probe
   "Returns eip and whether this is lein 1 or lein 2.
@@ -53,8 +61,7 @@
         (catch java.io.FileNotFoundException _))) )
 
 (defn instrument-init
-  "Takes an init form and adds guzheng to it.
-  TODO: cannot compose with other inits."
+  "Takes an init form and adds guzheng to it."
   [form nses]
   `(do
      ~form
