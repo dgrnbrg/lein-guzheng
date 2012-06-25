@@ -36,10 +36,8 @@
                      guzheng.core/trace-if-branches
                      (vector ns#)))))
              (apply f# ~libspecs-sym))
-           ~(when lein2?
-              '(require 'robert.hooke))
            (~(if lein2?
-               'robert.hooke/add-hook
+               'leiningen.core.injected/add-hook
                'leiningen.util.injected/add-hook) #'require #'require-instrumented#)
            ~form)]
     form))
@@ -94,13 +92,7 @@
         [eip two?] (lein-probe)
         apply-task (if two?
                      (resolve 'leiningen.core.main/apply-task) 
-                     (resolve 'leiningen.core/apply-task))
-        ;must add a dependency on robert.hooke for lein2
-        ;TODO: use injected hook in lein2 as well
-        project (-> project
-                  (update-in [:dependencies] conj ['robert/hooke "1.1.3"]))
-
-        ]
+                     (resolve 'leiningen.core/apply-task))]
     ;Instrument the correct eval-in-project fn
     (add-hook eip (if two?
                     #'instrument-eip-2
