@@ -4,7 +4,7 @@
   (:require leiningen.test)
   (:use robert.hooke))
 
-(defn split-ns-subtask
+(defn- split-ns-subtask
   "Takes the namespaces followed by \"--\" followed
   by the leiningen command to run with an instrumented
   eval-in-project."
@@ -12,7 +12,7 @@
   (let [[nses subtask] (split-with #(not= "--" %) args)]
     [(map symbol nses) subtask]))
 
-(defn instrument-form
+(defn- instrument-form
   "Takes the form to be wrapped with the
   guzheng data collector and result displayer.
   This uses a shutdown hook in the JVM in order to be
@@ -22,29 +22,29 @@
   (let [libspecs-sym (gensym "libspecs")
         nses (map str nses)
         form
-    `(do
-       (-> (java.lang.Runtime/getRuntime)
-         (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
-       (defn require-instrumented#
-         [f# & ~libspecs-sym]
-         (let [loaded-ref# @#'clojure.core/*loaded-libs*
-               loaded# (map str @loaded-ref#)]
-           (doseq [ns# (vector ~@nses)]
-             (when-not (some #{ns#} loaded#)
-               (dosync (alter loaded-ref# conj (symbol ns#)))
-               (guzheng.core/instrument-nses
-                 guzheng.core/trace-if-branches
-                 (vector ns#)))))
-         (apply f# ~libspecs-sym))
-       ~(when lein2?
-          '(require 'robert.hooke))
-       (~(if lein2?
-           'robert.hooke/add-hook
-           'leiningen.util.injected/add-hook) #'require #'require-instrumented#)
-       ~form)]
+        `(do
+           (-> (java.lang.Runtime/getRuntime)
+             (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
+           (defn require-instrumented#
+             [f# & ~libspecs-sym]
+             (let [loaded-ref# @#'clojure.core/*loaded-libs*
+                   loaded# (map str @loaded-ref#)]
+               (doseq [ns# (vector ~@nses)]
+                 (when-not (some #{ns#} loaded#)
+                   (dosync (alter loaded-ref# conj (symbol ns#)))
+                   (guzheng.core/instrument-nses
+                     guzheng.core/trace-if-branches
+                     (vector ns#)))))
+             (apply f# ~libspecs-sym))
+           ~(when lein2?
+              '(require 'robert.hooke))
+           (~(if lein2?
+               'robert.hooke/add-hook
+               'leiningen.util.injected/add-hook) #'require #'require-instrumented#)
+           ~form)]
     form))
 
-(defn lein-probe
+(defn- lein-probe
   "Returns eip and whether this is lein 1 or lein 2.
   If it's lein 2, the 2nd element of the returned vector
   will be true."
@@ -57,16 +57,16 @@
         [(resolve 'leiningen.compile/eval-in-project)]
         (catch java.io.FileNotFoundException _))) )
 
-(defn instrument-init
+(defn- instrument-init
   "Takes an init form and adds guzheng to it."
   [form nses]
   `(do
      ~form
      (require 'guzheng.core)))
 
-(def ^:dynamic *instrumented-nses*)
+(def ^{:dynamic true :private true} *instrumented-nses*)
 
-(defn instrument-eip-1
+(defn- instrument-eip-1
   "Calls eval in project w/ instrumentation."
   [f project form x y init]
   (if-not (or x y)
@@ -76,7 +76,7 @@
        (instrument-init init *instrumented-nses*))
     (f project form x y init)))
 
-(defn instrument-eip-2
+(defn- instrument-eip-2
   "Calls eval in project w/ instrumentation."
   [f project form init]
   (f project
