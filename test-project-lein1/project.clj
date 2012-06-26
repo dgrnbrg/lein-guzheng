@@ -4,4 +4,4 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]]
-  :dev-dependencies [[lein-guzheng "0.3.1"]])
+  :dev-dependencies [[lein-guzheng ~(nth (read-string (slurp "../project.clj")) 2)]])
