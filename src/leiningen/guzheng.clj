@@ -2,7 +2,15 @@
   (:use bultitude.core)
   (:use clojure.pprint)
   (:require leiningen.test)
-  (:use robert.hooke))
+  (:use robert.hooke)
+  (:require [clojure.java.io :as io])
+  (:import (java.io PushbackReader)))
+
+(def ^:private hooke-injection
+  (with-open [rdr  (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
+    `(do (ns ~'lein-guzheng.core.injected)
+       ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
+       (ns ~'user))))
 
 (defn- split-ns-subtask
   "Takes the namespaces followed by \"--\" followed
@@ -25,6 +33,7 @@
         `(do
            (-> (java.lang.Runtime/getRuntime)
              (.addShutdownHook (java.lang.Thread. guzheng.core/report-missing-coverage)))
+           ~hooke-injection
            (defn require-instrumented#
              [f# & ~libspecs-sym]
              (let [loaded-ref# @#'clojure.core/*loaded-libs*
@@ -37,7 +46,7 @@
                      (vector ns#)))))
              (apply f# ~libspecs-sym))
            (~(if lein2?
-               'leiningen.core.injected/add-hook
+               'lein-guzheng.core.injected/add-hook
                'leiningen.util.injected/add-hook) #'require #'require-instrumented#)
            ~form)]
     form))
@@ -82,7 +91,7 @@
   ;map.
   (let [project (-> project
                   (update-in [:dependencies] conj ['guzheng "1.2.0"])
-                  (assoc :disable-injection false))] 
+                  (update-in [:injections] conj hooke-injection))]
     (f project
        (instrument-form form *instrumented-nses* true)
        (instrument-init init *instrumented-nses*))))
