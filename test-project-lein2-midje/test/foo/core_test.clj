@@ -1,7 +1,9 @@
 (ns foo.core-test
-  (:use midje.sweet) 
+  (:use clojure.test) 
   (:use foo.core))
 
-(fact (foo.core/hello-world) => "hello world")
-(fact (foo.core/branches true) => nil?)
-(fact (foo.core/goodbye2) => "goodbye")
+(deftest a-test
+  (is (= (foo.core/hello-world) "hello world"))
+  (is (= (foo.core/goodbye3 nil) "bye"))
+  (is (nil? (foo.core/branches true)))
+  (is (= (foo.core/goodbye2) "goodbye")))

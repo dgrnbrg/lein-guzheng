@@ -3,7 +3,7 @@
   (:use [clojure test pprint]))
 
 (def expected-output
-  "in ns foo.core: false branch is not covered in \"if\" on line 23\nin ns foo.core: false branch is not covered in \"if\" on line 16\nin ns foo.core: goodbye is not covered in \"defn\" on line 7\n") 
+  "in ns foo.core: false branch is not covered in \"if\" on line 31\nin ns foo.core: arity [] is not covered in \"defn goodbye3\" on line 21\nin ns foo.core: arity [a x] is not covered in \"defn goodbye3\" on line 21\nin ns foo.core: false branch is not covered in \"if\" on line 16\nin ns foo.core: arity [] is not covered in \"defn goodbye\" on line 7\n")
 
 (deftest test-lein1
   (let [{:keys [err out exit]}

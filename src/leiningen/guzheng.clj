@@ -87,7 +87,7 @@
   with the given namespaces instrumented."
   [project & args]
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng/guzheng "1.1.3"]))
+                  (update-in [:dependencies] conj ['guzheng/guzheng "1.2.0"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
         [eip two?] (lein-probe)
         apply-task (if two?

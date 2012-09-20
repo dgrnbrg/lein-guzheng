@@ -18,6 +18,14 @@
     "bol")
   "goodbye")
 
+(defn goodbye3
+  ([]
+   "hi")
+  ([h]
+   "bye")
+  ([a x]
+   "thrice"))
+
 (defn branches
   [x]
   (if x
