@@ -19,7 +19,7 @@
 
 (deftest test-lein2
   (let [{:keys [err out exit]}
-        (sh "lein2" "clean," "deps," "version" :dir "test-project-lein2")]
+        (sh "lein2" "do" "clean," "deps," "version" :dir "test-project-lein2")]
     (println out)
     (is (re-find #"Leiningen 2\." out))
     (is (= 0 exit))) 
@@ -32,7 +32,7 @@
 
 (deftest midje-lein2
   (let [{:keys [err out exit]}
-        (sh "lein2" "clean," "deps," "version" :dir "test-project-lein2-midje")]
+        (sh "lein2" "do" "clean," "deps," "version" :dir "test-project-lein2-midje")]
     (println out)
     (is (re-find #"Leiningen 2\." out))
     (is (= 0 exit))) 
