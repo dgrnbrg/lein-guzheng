@@ -77,9 +77,15 @@
 (defn- instrument-eip-2
   "Calls eval in project w/ instrumentation."
   [f project form init]
-  (f project
-     (instrument-form form *instrumented-nses* true)
-     (instrument-init init *instrumented-nses*)))
+  ;TODO: remove this hack where I have to add guzheng here instead of in the
+  ;main task. For some reason, it seems that the test task reset the project
+  ;map.
+  (let [project (-> project
+                  (update-in [:dependencies] conj ['guzheng "1.2.0"])
+                  (assoc :disable-injection false))] 
+    (f project
+       (instrument-form form *instrumented-nses* true)
+       (instrument-init init *instrumented-nses*))))
 
 (defn guzheng
   "Takes a list of namespaces followed by -- and
@@ -87,7 +93,7 @@
   with the given namespaces instrumented."
   [project & args]
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng/guzheng "1.2.0"]))
+                  (update-in [:dependencies] conj ['guzheng "1.2.0"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
         [eip two?] (lein-probe)
         apply-task (if two?
