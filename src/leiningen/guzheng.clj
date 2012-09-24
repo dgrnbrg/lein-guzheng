@@ -90,7 +90,7 @@
   ;main task. For some reason, it seems that the test task reset the project
   ;map.
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng "1.2.1"])
+                  (update-in [:dependencies] conj ['guzheng "1.2.2"])
                   (update-in [:injections] conj hooke-injection))]
     (f project
        (instrument-form form *instrumented-nses* true)
@@ -102,7 +102,7 @@
   with the given namespaces instrumented."
   [project & args]
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng "1.2.1"]))
+                  (update-in [:dependencies] conj ['guzheng "1.2.2"]))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
         [eip two?] (lein-probe)
         apply-task (if two?
