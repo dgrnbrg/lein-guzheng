@@ -6,6 +6,10 @@
   (:require [clojure.java.io :as io])
   (:import (java.io PushbackReader)))
 
+(def ^ {:private true :const :true}
+  guzheng-version
+  ['guzheng "1.2.4"])
+
 (def ^:private hooke-injection
   (with-open [rdr  (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
     `(do (ns ~'lein-guzheng.core.injected)
@@ -90,7 +94,7 @@
   ;main task. For some reason, it seems that the test task reset the project
   ;map.
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng "1.2.2"])
+                  (update-in [:dependencies] conj guzheng-version) 
                   (update-in [:injections] conj hooke-injection))]
     (f project
        (instrument-form form *instrumented-nses* true)
@@ -102,7 +106,7 @@
   with the given namespaces instrumented."
   [project & args]
   (let [project (-> project
-                  (update-in [:dependencies] conj ['guzheng "1.2.2"]))
+                  (update-in [:dependencies] conj guzheng-version))
         [nses [_ subtask & sub-args]] (split-ns-subtask args)
         [eip two?] (lein-probe)
         apply-task (if two?
