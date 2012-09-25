@@ -9,9 +9,9 @@ coverage analysis.
 
 ## Usage
 
-Put `[lein-guzheng "0.4.0"]` into the `:plugins` vector of your
+Put `[lein-guzheng "0.4.2"]` into the `:plugins` vector of your
 `:user` profile, or if you are on Leiningen 1.x do `lein plugin install
-lein-guzheng 0.4.0`.
+lein-guzheng 0.4.2`.
 
     $ lein guzheng my.first.ns my.second.ns -- test
 
