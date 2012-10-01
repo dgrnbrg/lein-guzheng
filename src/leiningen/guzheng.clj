@@ -8,7 +8,7 @@
 
 (def ^ {:private true :const :true}
   guzheng-version
-  ['guzheng "1.2.4"])
+  ['guzheng "1.2.5"])
 
 (def ^:private hooke-injection
   (with-open [rdr  (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
